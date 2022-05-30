@@ -1,0 +1,25 @@
+name: Build an push Hudi
+
+on:
+  repository_dispatch:
+    types: [ build ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Hudi public repo
+        uses: actions/checkout@v3
+        with:
+          repository: apache/hudi
+          token: ${{ github.event.client_payload.token }} # `GH_PAT` is a secret that contains your PAT
+          ref: ${{ github.event.client_payload.branch }}
+      - name: Set up JDK 8
+        uses: actions/setup-java@v2
+        with:
+          java-version: '8'
+          distribution: 'adopt'
+          architecture: x64
+      - name: Build Project
+        run:
+          mvn clean -DskipTests -Pintegration-tests package
